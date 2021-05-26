@@ -44,10 +44,11 @@
   [(_ ([arg desc] ...) body ...)
    (with-syntax ([~program (datum->syntax this-syntax '~program)]
                  [~usage-help (datum->syntax this-syntax '~usage-help)])
-     #'(parse-command-line ~program
-                           (current-command-line-arguments)
-                           `((usage-help ,~usage-help))
-                           (λ (options arg ...)
-                             body
-                             ...)
-                           (list desc ...)))])
+     #'(module+ main
+         (parse-command-line ~program
+                             (current-command-line-arguments)
+                             `((usage-help ,~usage-help))
+                             (λ (options arg ...)
+                               body
+                               ...)
+                             (list desc ...))))])
