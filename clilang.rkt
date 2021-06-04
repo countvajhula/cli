@@ -53,8 +53,6 @@
    (with-syntax ([~usage-help (datum->syntax this-syntax '~usage-help)])
      #'(set! ~usage-help value))])
 
-;; lambda args call handler loses the hint that "the -d option
-;; needs N arguments, but M provided"
 (define-syntax-parser flag
   [(_ name (short-flag verbose-flag) description handler)
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
@@ -100,7 +98,14 @@
                                               body ...)
             #'(λ (~flg . args)
                 body ...)]))
-        (list (fourth spec) "NAME")))
+        ;; we extract the argument names from the
+        ;; lambda written by the user, and use those
+        ;; as argument names in the spec
+        (let ([arg-names (syntax-parse (sixth spec)
+                           [((~or (~datum lambda) (~datum λ)) (arg ...)
+                                                              body ...)
+                            (map (compose symbol->string syntax->datum) (syntax->list #'(arg ...)))])])
+          (cons (fourth spec) arg-names))))
 
 (define (read-specs specs header)
   (cons header

@@ -8,7 +8,7 @@
 (flag length
       ("-l" "--length")
       "Length to search up to"
-      (λ (~l)
+      (λ (~l ~q)
         (length ~l)))
 
 (flag depth
