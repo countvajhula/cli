@@ -82,8 +82,24 @@
 
 (define (read-spec spec)
   (list (list (second spec) (third spec))
-        (lambda (flg . args)
-          (apply (fifth spec) args))
+        ;; the user would write a lambda without
+        ;; expecting the flag argument, so we
+        ;; add the flag argument here, invisibly
+        ;; by parsing and then recomposing a syntax
+        ;; object from the user's entered lambda
+        ;; we also eval it here since the argument
+        ;; needs to be a procedure rather than a
+        ;; specification for a procedure
+        (eval
+         (syntax-parse (sixth spec)
+           [((~or (~datum lambda) (~datum λ)) (arg ...)
+                                              body ...)
+            #'(λ (~flg arg ...)
+                body ...)]
+           [((~or (~datum lambda) (~datum λ)) args
+                                              body ...)
+            #'(λ (~flg . args)
+                body ...)]))
         (list (fourth spec) "NAME")))
 
 (define (read-specs specs header)
