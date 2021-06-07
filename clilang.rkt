@@ -19,19 +19,6 @@
                      #%module-begin)
          #%top #%app #%datum #%top-interaction)
 
-;; cli struct specification
-;;   - maybe (make-cli) prior to calling (run ...)
-;;     to create a (cli ...) struct
-;;     which could be introspected and independently executed
-;;     in requiring modules
-;;     -> define a function (cli-spec) at the module level
-;;        in read-syntax, which should return the cli instance
-;;        and it should be (provide ...)ed at this level
-;;   - and then if that works out, maybe make all of the
-;;     syntactic forms here simply mutate the global cli instance
-;;     instead of setting individual variables
-;;     (could use lenses to make this cleanish)
-
 (define (read-syntax path port)
   (define src-datums (sequence->list (in-port read port)))
   (define module-datum `(module cli-mod "clilang.rkt"
