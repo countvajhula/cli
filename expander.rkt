@@ -6,11 +6,9 @@
                      racket/base)
          syntax/parse
          syntax/parse/define
-         racket/list
-         (only-in racket/sequence sequence->list))
+         racket/list)
 
-(provide read-syntax
-         run
+(provide run
          program
          usage-help
          flag
@@ -18,17 +16,6 @@
          (except-out (all-from-out racket/base)
                      #%module-begin)
          #%top #%app #%datum #%top-interaction)
-
-(define (read-syntax path port)
-  (define src-datums (sequence->list (in-port read port)))
-  (define module-datum `(module cli-mod "clilang.rkt"
-                          (define ~program "")
-                          (define ~usage-help "")
-                          (define ~once-each (list))
-                          (define ~once-any (make-hash))
-
-                          ,@src-datums))
-  (datum->syntax #f module-datum))
 
 (define-syntax-parser program
   [(_ value)
