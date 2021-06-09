@@ -70,7 +70,27 @@
                     'name
                     (list
                      (list 'name short-flag verbose-flag description handler #'handler)
-                     ...))))])
+                     ...))))]
+  [(_ id-spec (~datum multi) (short-flag verbose-flag description handler))
+   (with-syntax ([~multi (datum->syntax this-syntax '~multi)]
+                 [name (syntax-parse #'id-spec
+                         [(name arg ...) #'name]
+                         [name #'name])]
+                 [param-name (datum->syntax
+                              this-syntax
+                              (syntax-parse #'id-spec
+                                [(name param-name _) #'param-name]
+                                [(name _) #'name]
+                                [name #'name]))]
+                 [init-value (syntax-parse #'id-spec
+                               [(name param-name init-value) #'init-value]
+                               [(name init-value) #'init-value]
+                               [_ #'#f])])
+     #'(begin
+         (define param-name (make-parameter init-value))
+         (set! ~multi
+               (cons (list 'name short-flag verbose-flag description handler #'handler)
+                     ~multi))))])
 
 (define-simple-macro (cli-module-begin EXPR ...)
   (#%module-begin
@@ -115,15 +135,18 @@
    (with-syntax ([~program (datum->syntax this-syntax '~program)]
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
                  [~once-each (datum->syntax this-syntax '~once-each)]
-                 [~once-any (datum->syntax this-syntax '~once-any)])
+                 [~once-any (datum->syntax this-syntax '~once-any)]
+                 [~multi (datum->syntax this-syntax '~multi)])
      #'(module+ main
          (let* ([once-eaches (read-specs ~once-each 'once-each)]
                 [once-anies
                  (for/list ([specs (hash-values ~once-any)])
                    (read-specs specs 'once-any))]
+                [multis (read-specs ~multi 'multi)]
                 [table `((usage-help ,~usage-help)
                          ,once-eaches
-                         ,@once-anies)])
+                         ,@once-anies
+                         ,multis)])
            (parse-command-line ~program
                                (current-command-line-arguments)
                                table
