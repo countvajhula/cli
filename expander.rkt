@@ -27,24 +27,25 @@
    (with-syntax ([~usage-help (datum->syntax this-syntax '~usage-help)])
      #'(set! ~usage-help value))])
 
+(define-syntax-parser flag-id
+  [(_ (name param-name init-value))
+   (with-syntax ([param-name (datum->syntax this-syntax #'param-name)])
+     #'(define param-name (make-parameter init-value)))]
+  [(_ (name init-value))
+   (with-syntax ([param-name (datum->syntax this-syntax #'name)])
+     #'(define param-name (make-parameter init-value)))]
+  [(_ name)
+   (with-syntax ([param-name (datum->syntax this-syntax #'name)])
+     #'(define param-name (make-parameter #f)))])
+
 (define-syntax-parser flag
   [(_ id-spec (short-flag verbose-flag) description handler)
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [name (syntax-parse #'id-spec
                          [(name arg ...) #'name]
-                         [name #'name])]
-                 [param-name (datum->syntax
-                              this-syntax
-                              (syntax-parse #'id-spec
-                                [(name param-name _) #'param-name]
-                                [(name _) #'name]
-                                [name #'name]))]
-                 [init-value (syntax-parse #'id-spec
-                               [(name param-name init-value) #'init-value]
-                               [(name init-value) #'init-value]
-                               [_ #'#f])])
+                         [name #'name])])
      #'(begin
-         (define param-name (make-parameter init-value))
+         (flag-id id-spec)
          (set! ~once-each
                (cons (list 'name short-flag verbose-flag description handler #'handler)
                      ~once-each))))]
@@ -53,19 +54,9 @@
    (with-syntax ([~once-any (datum->syntax this-syntax '~once-any)]
                  [name (syntax-parse #'id-spec
                          [(name arg ...) #'name]
-                         [name #'name])]
-                 [param-name (datum->syntax
-                              this-syntax
-                              (syntax-parse #'id-spec
-                                [(name param-name _) #'param-name]
-                                [(name _) #'name]
-                                [name #'name]))]
-                 [init-value (syntax-parse #'id-spec
-                               [(name param-name init-value) #'init-value]
-                               [(name init-value) #'init-value]
-                               [_ #'#f])])
+                         [name #'name])])
      #'(begin
-         (define param-name (make-parameter init-value))
+         (flag-id id-spec)
          (hash-set! ~once-any
                     'name
                     (list
@@ -75,19 +66,9 @@
    (with-syntax ([~multi (datum->syntax this-syntax '~multi)]
                  [name (syntax-parse #'id-spec
                          [(name arg ...) #'name]
-                         [name #'name])]
-                 [param-name (datum->syntax
-                              this-syntax
-                              (syntax-parse #'id-spec
-                                [(name param-name _) #'param-name]
-                                [(name _) #'name]
-                                [name #'name]))]
-                 [init-value (syntax-parse #'id-spec
-                               [(name param-name init-value) #'init-value]
-                               [(name init-value) #'init-value]
-                               [_ #'#f])])
+                         [name #'name])])
      #'(begin
-         (define param-name (make-parameter init-value))
+         (flag-id id-spec)
          (set! ~multi
                (cons (list 'name short-flag verbose-flag description handler #'handler)
                      ~multi))))])
