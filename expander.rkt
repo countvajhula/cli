@@ -28,20 +28,44 @@
      #'(set! ~usage-help value))])
 
 (define-syntax-parser flag
-  [(_ name (short-flag verbose-flag) description handler)
+  [(_ id-spec (short-flag verbose-flag) description handler)
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
-                 [param-name (datum->syntax this-syntax #'name)])
+                 [name (syntax-parse #'id-spec
+                         [(name arg ...) #'name]
+                         [name #'name])]
+                 [param-name (datum->syntax
+                              this-syntax
+                              (syntax-parse #'id-spec
+                                [(name param-name _) #'param-name]
+                                [(name _) #'name]
+                                [name #'name]))]
+                 [init-value (syntax-parse #'id-spec
+                               [(name param-name init-value) #'init-value]
+                               [(name init-value) #'init-value]
+                               [_ #'#f])])
      #'(begin
-         (define param-name (make-parameter #f))
+         (define param-name (make-parameter init-value))
          (set! ~once-each
                (cons (list 'name short-flag verbose-flag description handler #'handler)
                      ~once-each))))]
-  [(_ name ((~datum one-of) (short-flag verbose-flag description handler)
-                            ...))
+  [(_ id-spec ((~datum one-of) (short-flag verbose-flag description handler)
+                               ...))
    (with-syntax ([~once-any (datum->syntax this-syntax '~once-any)]
-                 [param-name (datum->syntax this-syntax #'name)])
+                 [name (syntax-parse #'id-spec
+                         [(name arg ...) #'name]
+                         [name #'name])]
+                 [param-name (datum->syntax
+                              this-syntax
+                              (syntax-parse #'id-spec
+                                [(name param-name _) #'param-name]
+                                [(name _) #'name]
+                                [name #'name]))]
+                 [init-value (syntax-parse #'id-spec
+                               [(name param-name init-value) #'init-value]
+                               [(name init-value) #'init-value]
+                               [_ #'#f])])
      #'(begin
-         (define param-name (make-parameter #f))
+         (define param-name (make-parameter init-value))
          (hash-set! ~once-any
                     'name
                     (list
