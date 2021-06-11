@@ -10,6 +10,7 @@
                             (define ~program "")
                             (define ~usage-help (list ""))
                             (define ~help-labels (list ""))
+                            (define ~help-ps (list ""))
                             (define ~once-each (list))
                             (define ~once-any (make-hash))
                             (define ~multi (list))

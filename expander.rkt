@@ -12,6 +12,7 @@
          program
          usage-help
          help-labels
+         help-ps
          flag
          (rename-out (cli-module-begin #%module-begin))
          (except-out (all-from-out racket/base)
@@ -32,6 +33,11 @@
   [(_ label-line ...)
    (with-syntax ([~help-labels (datum->syntax this-syntax '~help-labels)])
      #'(set! ~help-labels (list label-line ...)))])
+
+(define-syntax-parser help-ps
+  [(_ ps-line ...)
+   (with-syntax ([~help-ps (datum->syntax this-syntax '~help-ps)])
+     #'(set! ~help-ps (list ps-line ...)))])
 
 (define-syntax-parser flag-id
   [(_ (name param-name init-value))
@@ -138,6 +144,7 @@
    (with-syntax ([~program (datum->syntax this-syntax '~program)]
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
                  [~help-labels (datum->syntax this-syntax '~help-labels)]
+                 [~help-ps (datum->syntax this-syntax '~help-ps)]
                  [~once-each (datum->syntax this-syntax '~once-each)]
                  [~once-any (datum->syntax this-syntax '~once-any)]
                  [~multi (datum->syntax this-syntax '~multi)]
@@ -151,6 +158,7 @@
                 [finals (read-specs ~final 'final)]
                 [table `((usage-help ,@~usage-help)
                          (help-labels ,@~help-labels)
+                         (ps ,@~help-ps)
                          ,once-eaches
                          ,@once-anies
                          ,multis
