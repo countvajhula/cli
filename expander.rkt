@@ -113,7 +113,13 @@
         (let ([arg-names (syntax-parse (sixth spec)
                            [((~or (~datum lambda) (~datum λ)) (arg ...)
                                                               body ...)
-                            (map (compose symbol->string syntax->datum) (syntax->list #'(arg ...)))])])
+                            (map (compose symbol->string syntax->datum)
+                                 (syntax->list #'(arg ...)))]
+                           [((~or (~datum lambda) (~datum λ)) args
+                                                              body ...)
+                            (list
+                             (symbol->string
+                              (syntax->datum #'args)))])])
           (cons (fourth spec) arg-names))))
 
 (define (read-specs specs header)
