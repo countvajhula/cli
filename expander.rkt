@@ -23,9 +23,9 @@
      #'(set! ~program value))])
 
 (define-syntax-parser usage-help
-  [(_ value)
+  [(_ help-line ...)
    (with-syntax ([~usage-help (datum->syntax this-syntax '~usage-help)])
-     #'(set! ~usage-help value))])
+     #'(set! ~usage-help (list help-line ...)))])
 
 (define-syntax-parser flag-id
   [(_ (name param-name init-value))
@@ -124,7 +124,7 @@
                  (for/list ([specs (hash-values ~once-any)])
                    (read-specs specs 'once-any))]
                 [multis (read-specs ~multi 'multi)]
-                [table `((usage-help ,~usage-help)
+                [table `((usage-help ,@~usage-help)
                          ,once-eaches
                          ,@once-anies
                          ,multis)])

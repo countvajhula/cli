@@ -8,7 +8,7 @@
     (define src-datums (sequence->list (in-port read port)))
     (define module-datum `(module cli-mod cli/expander
                             (define ~program "")
-                            (define ~usage-help "")
+                            (define ~usage-help (list ""))
                             (define ~once-each (list))
                             (define ~once-any (make-hash))
                             (define ~multi (list))
