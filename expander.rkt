@@ -71,7 +71,17 @@
          (flag-id id-spec)
          (set! ~multi
                (cons (list 'name short-flag verbose-flag description handler #'handler)
-                     ~multi))))])
+                     ~multi))))]
+  [(_ id-spec (~datum final) (short-flag verbose-flag description handler))
+   (with-syntax ([~final (datum->syntax this-syntax '~final)]
+                 [name (syntax-parse #'id-spec
+                         [(name arg ...) #'name]
+                         [name #'name])])
+     #'(begin
+         (flag-id id-spec)
+         (set! ~final
+               (cons (list 'name short-flag verbose-flag description handler #'handler)
+                     ~final))))])
 
 (define-simple-macro (cli-module-begin EXPR ...)
   (#%module-begin
@@ -117,17 +127,20 @@
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
                  [~once-each (datum->syntax this-syntax '~once-each)]
                  [~once-any (datum->syntax this-syntax '~once-any)]
-                 [~multi (datum->syntax this-syntax '~multi)])
+                 [~multi (datum->syntax this-syntax '~multi)]
+                 [~final (datum->syntax this-syntax '~final)])
      #'(module+ main
          (let* ([once-eaches (read-specs ~once-each 'once-each)]
                 [once-anies
                  (for/list ([specs (hash-values ~once-any)])
                    (read-specs specs 'once-any))]
                 [multis (read-specs ~multi 'multi)]
+                [finals (read-specs ~final 'final)]
                 [table `((usage-help ,@~usage-help)
                          ,once-eaches
                          ,@once-anies
-                         ,multis)])
+                         ,multis
+                         ,finals)])
            (parse-command-line ~program
                                (current-command-line-arguments)
                                table

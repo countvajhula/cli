@@ -12,6 +12,7 @@
                             (define ~once-each (list))
                             (define ~once-any (make-hash))
                             (define ~multi (list))
+                            (define ~final (list))
 
                             ,@src-datums))
     (datum->syntax #f module-datum))
