@@ -9,6 +9,7 @@
     (define module-datum `(module cli-mod cli/expander
                             (define ~program "")
                             (define ~usage-help (list ""))
+                            (define ~help-labels (list ""))
                             (define ~once-each (list))
                             (define ~once-any (make-hash))
                             (define ~multi (list))
