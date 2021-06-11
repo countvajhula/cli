@@ -10,9 +10,8 @@
 
 (provide run
          program
-         usage-help
-         help-labels
-         help-ps
+         help
+         help-clause ; not intended to be used directly -- use help instead
          flag
          (rename-out (cli-module-begin #%module-begin))
          (except-out (all-from-out racket/base)
@@ -24,20 +23,32 @@
    (with-syntax ([~program (datum->syntax this-syntax '~program)])
      #'(set! ~program value))])
 
-(define-syntax-parser usage-help
-  [(_ help-line ...)
+;; This is so that we can use the `help` macro
+;; to encapsulate all help-related configuration
+;; and still be able to modify source-location bindings
+;; unhygienically via modular sub-macros.
+;; This help-clause macro will
+;; be needed in the source module at expansion time
+;; but it is not intended to be used directly.
+(define-syntax-parser help-clause
+  [(_ ((~datum usage) line ...))
    (with-syntax ([~usage-help (datum->syntax this-syntax '~usage-help)])
-     #'(set! ~usage-help (list help-line ...)))])
-
-(define-syntax-parser help-labels
-  [(_ label-line ...)
+     #'(set! ~usage-help (list line ...)))]
+  [(_ ((~datum labels) line ...))
    (with-syntax ([~help-labels (datum->syntax this-syntax '~help-labels)])
-     #'(set! ~help-labels (list label-line ...)))])
-
-(define-syntax-parser help-ps
-  [(_ ps-line ...)
+     #'(set! ~help-labels (list line ...)))]
+  [(_ ((~datum ps) line ...))
    (with-syntax ([~help-ps (datum->syntax this-syntax '~help-ps)])
-     #'(set! ~help-ps (list ps-line ...)))])
+     #'(set! ~help-ps (list line ...)))])
+
+(define-syntax-parser help
+  [(_ clause ...)
+   (with-syntax ([rewritten-clauses
+                  (datum->syntax this-syntax
+                                 (syntax->datum
+                                  #'(list (help-clause clause)
+                                          ...)))])
+     #`(begin #,@(syntax->list #'rewritten-clauses)))])
 
 (define-syntax-parser flag-id
   [(_ (name param-name init-value))
