@@ -9,6 +9,7 @@
          racket/list)
 
 (provide run
+         command
          program
          help
          help-clause ; not intended to be used directly -- use help instead
@@ -150,9 +151,10 @@
         (for/list ([spec specs])
           (read-spec spec))))
 
-(define-syntax-parser run
-  [(_ ([arg desc] ...) body ...)
-   (with-syntax ([~program (datum->syntax this-syntax '~program)]
+(define-syntax-parser command
+  [(_ name:id ([arg:id desc:string] ...) body ...)
+   (with-syntax ([command-name (symbol->string (syntax->datum #'name))]
+                 [command-id (datum->syntax this-syntax (syntax->datum #'name))]
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
                  [~help-labels (datum->syntax this-syntax '~help-labels)]
                  [~help-ps (datum->syntax this-syntax '~help-ps)]
@@ -160,7 +162,7 @@
                  [~once-any (datum->syntax this-syntax '~once-any)]
                  [~multi (datum->syntax this-syntax '~multi)]
                  [~final (datum->syntax this-syntax '~final)])
-     #'(module+ main
+     #'(define (command-id argv)
          (let* ([once-eaches (read-specs ~once-each 'once-each)]
                 [once-anies
                  (for/list ([specs (hash-values ~once-any)])
@@ -174,10 +176,15 @@
                          ,@once-anies
                          ,multis
                          ,finals)])
-           (parse-command-line ~program
-                               (current-command-line-arguments)
+           (parse-command-line command-name
+                               argv
                                table
                                (λ (options arg ...)
                                  body
                                  ...)
                                (list desc ...)))))])
+
+(define-syntax-parser run
+  [(_ name)
+   #'(module+ main
+       (name (current-command-line-arguments)))])
