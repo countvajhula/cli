@@ -46,8 +46,8 @@
    (with-syntax ([rewritten-clauses
                   (datum->syntax this-syntax
                                  (syntax->datum
-                                  #'(list (help-clause clause)
-                                          ...)))])
+                                  #'((help-clause clause)
+                                     ...)))])
      #`(begin #,@(syntax->list #'rewritten-clauses)))])
 
 (define-syntax-parser flag-id
