@@ -7,7 +7,6 @@
 (define (read-syntax path port)
     (define src-datums (sequence->list (in-port read port)))
     (define module-datum `(module cli-mod cli/expander
-                            (define ~program "")
                             (define ~usage-help (list ""))
                             (define ~help-labels (list ""))
                             (define ~help-ps (list ""))

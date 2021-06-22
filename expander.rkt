@@ -10,7 +10,6 @@
 
 (provide run
          command
-         program
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
@@ -18,11 +17,6 @@
          (except-out (all-from-out racket/base)
                      #%module-begin)
          #%top #%app #%datum #%top-interaction)
-
-(define-syntax-parser program
-  [(_ value)
-   (with-syntax ([~program (datum->syntax this-syntax '~program)])
-     #'(set! ~program value))])
 
 ;; This is so that we can use the `help` macro
 ;; to encapsulate all help-related configuration
