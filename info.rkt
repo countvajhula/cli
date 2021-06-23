@@ -1,6 +1,8 @@
 #lang info
 (define collection "cli")
-(define deps '("base"))
+(define deps '("base"
+               "mischief"
+               "version-case"))
 (define build-deps '("scribble-lib"
                      "scribble-abbrevs"
                      "racket-doc"

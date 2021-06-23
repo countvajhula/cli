@@ -6,17 +6,46 @@
                      racket/base)
          syntax/parse
          syntax/parse/define
-         racket/list)
+         racket/list
+         mischief/shorthand
+         version-case)
+
+(version-case
+ [(version< (version) "7.9.0.22")
+  (define-alias define-syntax-parse-rule define-simple-macro)]
+ [else])
 
 (provide run
          command
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
+         cli-command
          (rename-out (cli-module-begin #%module-begin))
          (except-out (all-from-out racket/base)
                      #%module-begin)
          #%top #%app #%datum #%top-interaction)
+
+(define-syntax-parser cli-module-begin
+  [(_ EXPR ...)
+   (with-syntax ([~usage-help (datum->syntax this-syntax '~usage-help)]
+                 [~help-labels (datum->syntax this-syntax '~help-labels)]
+                 [~help-ps (datum->syntax this-syntax '~help-ps)]
+                 [~once-each (datum->syntax this-syntax '~once-each)]
+                 [~once-any (datum->syntax this-syntax '~once-any)]
+                 [~multi (datum->syntax this-syntax '~multi)]
+                 [~final (datum->syntax this-syntax '~final)])
+     #'(#%module-begin
+
+        (define ~usage-help (list ""))
+        (define ~help-labels (list ""))
+        (define ~help-ps (list ""))
+        (define ~once-each (list))
+        (define ~once-any (make-hash))
+        (define ~multi (list))
+        (define ~final (list))
+
+        EXPR ...))])
 
 ;; This is so that we can use the `help` macro
 ;; to encapsulate all help-related configuration
@@ -101,10 +130,6 @@
                (cons (list 'name short-flag verbose-flag description handler #'handler)
                      ~final))))])
 
-(define-simple-macro (cli-module-begin EXPR ...)
-  (#%module-begin
-   EXPR ...))
-
 (define (read-spec spec)
   (list (list (second spec) (third spec))
         ;; the user would write a lambda without
@@ -178,7 +203,11 @@
                                  ...)
                                (list desc ...)))))])
 
-(define-syntax-parser run
-  [(_ name)
-   #'(module+ main
-       (name (current-command-line-arguments)))])
+(define-syntax-parse-rule (cli-command name:id body ...)
+  '(module name cli/expander
+    body ...
+    (provide name)))
+
+(define-syntax-parse-rule (run name:id)
+  (module+ main
+    (name (current-command-line-arguments))))

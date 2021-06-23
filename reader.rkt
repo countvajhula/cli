@@ -5,15 +5,13 @@
 (provide read-syntax)
 
 (define (read-syntax path port)
-    (define src-datums (sequence->list (in-port read port)))
-    (define module-datum `(module cli-mod cli/expander
-                            (define ~usage-help (list ""))
-                            (define ~help-labels (list ""))
-                            (define ~help-ps (list ""))
-                            (define ~once-each (list))
-                            (define ~once-any (make-hash))
-                            (define ~multi (list))
-                            (define ~final (list))
+  ;; this reads symexes from the source file
+  (define src-datums (sequence->list (in-port read port)))
+  (define module-datum `(module cli-mod cli/expander
 
-                            ,@src-datums))
-    (datum->syntax #f module-datum))
+                          ;; since the cli lang syntax is symex-oriented
+                          ;; we just use the read input directly.
+                          ;; the individual forms of the language will
+                          ;; be compiled by the expander
+                          ,@src-datums))
+  (datum->syntax #f module-datum))
