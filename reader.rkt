@@ -2,9 +2,14 @@
 
 (require (only-in racket/sequence sequence->list))
 
-(provide read-syntax)
+(provide
+ (rename-out [cli-read-syntax read-syntax]
+             [cli-read read]))
 
-(define (read-syntax path port)
+(define (cli-read port)
+  (cli-read-syntax #f port))
+
+(define (cli-read-syntax path port)
   ;; this reads symexes from the source file
   (define src-datums (sequence->list (in-port read port)))
   (define module-datum `(module cli-mod cli/expander
