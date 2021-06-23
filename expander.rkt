@@ -20,7 +20,6 @@
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
-         cli-command
          (rename-out (cli-module-begin #%module-begin))
          (except-out (all-from-out racket/base)
                      #%module-begin)
@@ -202,11 +201,6 @@
                                  body
                                  ...)
                                (list desc ...)))))])
-
-(define-syntax-parse-rule (cli-command name:id body ...)
-  '(module name cli/expander
-    body ...
-    (provide name)))
 
 (define-syntax-parse-rule (run name:id)
   (module+ main
