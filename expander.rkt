@@ -16,7 +16,7 @@
  [else])
 
 (provide run
-         command
+         program
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
@@ -169,7 +169,7 @@
         (for/list ([spec specs])
           (read-spec spec))))
 
-(define-syntax-parser command
+(define-syntax-parser program
   [(_ name:id ([arg:id desc:string] ...) body ...)
    (with-syntax ([command-name (symbol->string (syntax->datum #'name))]
                  [command-id (datum->syntax this-syntax (syntax->datum #'name))]
