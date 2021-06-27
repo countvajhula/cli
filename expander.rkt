@@ -170,7 +170,7 @@
           (read-spec spec))))
 
 (define-syntax-parser program
-  [(_ name:id ([arg:id desc:string] ...) body ...)
+  [(_ (name:id [arg:id desc:string] ...) body ...)
    (with-syntax ([command-name (symbol->string (syntax->datum #'name))]
                  [command-id (datum->syntax this-syntax (syntax->datum #'name))]
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
