@@ -20,9 +20,9 @@
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
-         (rename-out (cli-module-begin #%module-begin))
          (except-out (all-from-out racket/base)
                      #%module-begin)
+         (rename-out [cli-module-begin #%module-begin])
          #%top #%app #%datum #%top-interaction)
 
 (define-syntax-parser cli-module-begin
