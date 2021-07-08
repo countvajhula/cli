@@ -3,7 +3,7 @@
          scribble-abbrevs/manual
          scribble/example
          racket/sandbox
-         @for-label[cli
+         @for-label[(except-in cli #%module-begin)
                     racket]]
 
 @(define eval-for-docs
