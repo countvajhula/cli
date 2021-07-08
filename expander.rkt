@@ -169,8 +169,14 @@
         (for/list ([spec specs])
           (read-spec spec))))
 
+(begin-for-syntax
+  (define (parse-argspec argspec)
+    (syntax-parse argspec
+      [(arg:id desc:string) #'(arg desc)]
+      [arg:id #'(arg "undocumented argument")])))
+
 (define-syntax-parser program
-  [(_ (name:id [arg:id desc:string] ...) body ...)
+  [(_ (name:id argspec ...) body ...)
    (with-syntax ([command-name (symbol->string (syntax->datum #'name))]
                  [command-id (datum->syntax this-syntax (syntax->datum #'name))]
                  [~usage-help (datum->syntax this-syntax '~usage-help)]
@@ -179,7 +185,11 @@
                  [~once-each (datum->syntax this-syntax '~once-each)]
                  [~once-any (datum->syntax this-syntax '~once-any)]
                  [~multi (datum->syntax this-syntax '~multi)]
-                 [~final (datum->syntax this-syntax '~final)])
+                 [~final (datum->syntax this-syntax '~final)]
+                 [((arg desc) ...) (datum->syntax
+                                    this-syntax
+                                    (map parse-argspec
+                                         (syntax->list #'(argspec ...))))])
      #'(define (command-id argv)
          (let* ([once-eaches (read-specs ~once-each 'once-each)]
                 [once-anies
