@@ -10,30 +10,39 @@
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require cli))))
+    (make-evaluator 'cli)))
 
 @title{A language for writing command line interfaces}
 @author{Siddhartha Kasivajhula}
 
-@defmodule[cli]
+@defmodulelang[cli]
 
 A language for writing command line interfaces.
 
-@;{
-@examples[
-    #:eval eval-for-docs
-    (program "dummy")
-	(usage-help "A useful script.")
+@racketblock[
+(help (usage "A convenient way to write command line interfaces."))
 
-    (flag verbose
+(flag verbose
       ("-v" "--verbose")
-      "Show detailed messages"
-      (λ (v)
+      "Show detailed messages."
+      (λ ()
         (verbose #t)))
-    (run ()
-      (displayln "Hello!")
-	  (display "The verbose parameter is: "
-      (displayln (verbose))))
-  ]
+
+(program (hello)
+  (displayln "Hello!")
+  (if (verbose)
+    (displayln "Lots of words!")
+    (displayln "The soul of wit.")))
+
+(run hello)
+]
+
+@section{Forms}
+
+@defform/subs[(help help-clause ...)
+              ([help-clause (code:line (usage line ...))
+                            (code:line (labels line ...))
+                            (code:line (ps line ...))]
+               [line string])]{
+  Document various aspects of the command for display via shell interaction. Each of the subforms, @racket[usage], @racket[labels] and @racket[ps] accept strings provided in sequence, with each provided string appearing on a separate line in the output. @racket[usage] shows usage information, @racket[labels] appear before the help section on flags, and @racket[ps] appears at the end of the help text, as a "postscript" to the text. These forms correspond to the similarly-named forms in Racket's built-in command line interfaces.
 }
