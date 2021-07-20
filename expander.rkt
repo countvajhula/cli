@@ -122,13 +122,13 @@
      #'(for-each (λ (flg)
                    (~refile-flag flg ~once-each ~once-any))
                  (list 'flag0 'flag ...)))]
-  [(_ ((~datum multi) flag:id ...))
+  [(_ ((~datum multi) flag:id ...+))
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [~multi (datum->syntax this-syntax '~multi)])
      #'(for-each (λ (flg)
                    (~refile-flag flg ~once-each ~multi))
                  (list 'flag ...)))]
-  [(_ ((~datum final) flag:id ...))
+  [(_ ((~datum final) flag:id ...+))
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [~final (datum->syntax this-syntax '~final)])
      #'(for-each (λ (flg)
