@@ -44,5 +44,5 @@ A language for writing command line interfaces.
                             (code:line (labels line ...))
                             (code:line (ps line ...))]
                [line string])]{
-  Document various aspects of the command for display via shell interaction. Each of the subforms, @racket[usage], @racket[labels] and @racket[ps] accept strings provided in sequence, with each provided string appearing on a separate line in the output. @racket[usage] shows usage information, @racket[labels] appear before the help section on flags, and @racket[ps] appears at the end of the help text, as a "postscript" to the text. These forms correspond to the similarly-named forms in Racket's built-in command line interfaces.
+  Document various aspects of the command for display via shell interaction. @racket[usage] shows usage information, @racket[labels] appear before the help section on flags, and @racket[ps] appears at the end of the help text, as a "postscript" to the text. Each of the subforms, @racket[usage], @racket[labels] and @racket[ps], accept strings provided in sequence, with each provided string appearing on a separate line in the output. These forms correspond to the similarly-named forms in Racket's built-in command line interfaces.
 }

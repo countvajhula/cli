@@ -10,16 +10,18 @@
          mischief/shorthand
          version-case)
 
+(require "private/util.rkt")
+
 (version-case
  [(version< (version) "7.9.0.22")
-  (define-alias define-syntax-parse-rule define-simple-macro)]
- [else])
+  (define-alias define-syntax-parse-rule define-simple-macro)])
 
 (provide run
          program
          help
          help-clause ; not intended to be used directly -- use help instead
          flag
+         constraint
          (except-out (all-from-out racket/base)
                      #%module-begin)
          (rename-out [cli-module-begin #%module-begin])
@@ -40,7 +42,7 @@
         (define ~help-labels (list ""))
         (define ~help-ps (list ""))
         (define ~once-each (list))
-        (define ~once-any (make-hash))
+        (define ~once-any (list))
         (define ~multi (list))
         (define ~final (list))
 
@@ -94,40 +96,46 @@
          (flag-id id-spec)
          (set! ~once-each
                (cons (list 'name short-flag verbose-flag description handler #'handler)
-                     ~once-each))))]
-  [(_ id-spec ((~datum one-of) (short-flag verbose-flag description handler)
-                               ...))
-   (with-syntax ([~once-any (datum->syntax this-syntax '~once-any)]
-                 [name (syntax-parse #'id-spec
-                         [(name arg ...) #'name]
-                         [name #'name])])
-     #'(begin
-         (flag-id id-spec)
-         (hash-set! ~once-any
-                    'name
-                    (list
-                     (list 'name short-flag verbose-flag description handler #'handler)
-                     ...))))]
-  [(_ id-spec (~datum multi) (short-flag verbose-flag description handler))
-   (with-syntax ([~multi (datum->syntax this-syntax '~multi)]
-                 [name (syntax-parse #'id-spec
-                         [(name arg ...) #'name]
-                         [name #'name])])
-     #'(begin
-         (flag-id id-spec)
-         (set! ~multi
-               (cons (list 'name short-flag verbose-flag description handler #'handler)
-                     ~multi))))]
-  [(_ id-spec (~datum final) (short-flag verbose-flag description handler))
-   (with-syntax ([~final (datum->syntax this-syntax '~final)]
-                 [name (syntax-parse #'id-spec
-                         [(name arg ...) #'name]
-                         [name #'name])])
-     #'(begin
-         (flag-id id-spec)
-         (set! ~final
-               (cons (list 'name short-flag verbose-flag description handler #'handler)
-                     ~final))))])
+                     ~once-each))))])
+
+;; move flag from one location (usually ~once-each, where all flags go by default)
+;; to another (e.g. once-any, multi, or final)
+(define-syntax-parse-rule (~refile-flag flag source destination)
+  (let* ([idx (or (index-where source
+                               (λ (v)
+                                 (eq? flag (first v))))
+                  (raise-argument-error 'constraint
+                                        "An identifier corresponding to a previously declared flag"
+                                        flag))]
+         [flagspec (list-ref source idx)])
+    (set! destination
+          (cons flagspec
+                destination))
+    (set! source
+          (remove-at source
+                     idx))))
+
+;; TODO: verify that one-of with just 1 arg is accepted and works
+;; then prevent it
+(define-syntax-parser constraint
+  [(_ ((~datum one-of) flag ...))
+   (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
+                 [~once-any (datum->syntax this-syntax '~once-any)])
+     #'(for-each (λ (flg)
+                   (~refile-flag flg ~once-each ~once-any))
+                 (list 'flag ...)))]
+  [(_ ((~datum multi) flag ...))
+   (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
+                 [~multi (datum->syntax this-syntax '~multi)])
+     #'(for-each (λ (flg)
+                   (~refile-flag flg ~once-each ~multi))
+                 (list 'flag ...)))]
+  [(_ ((~datum final) flag ...))
+   (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
+                 [~final (datum->syntax this-syntax '~final)])
+     #'(for-each (λ (flg)
+                   (~refile-flag flg ~once-each ~final))
+                 (list 'flag ...)))])
 
 (define (read-spec spec)
   (list (list (second spec) (third spec))
@@ -192,16 +200,14 @@
                                          (syntax->list #'(argspec ...))))])
      #'(define (command-id argv)
          (let* ([once-eaches (read-specs ~once-each 'once-each)]
-                [once-anies
-                 (for/list ([specs (hash-values ~once-any)])
-                   (read-specs specs 'once-any))]
+                [once-anies (read-specs ~once-any 'once-any)]
                 [multis (read-specs ~multi 'multi)]
                 [finals (read-specs ~final 'final)]
                 [table `((usage-help ,@~usage-help)
                          (help-labels ,@~help-labels)
                          (ps ,@~help-ps)
                          ,once-eaches
-                         ,@once-anies
+                         ,once-anies
                          ,multis
                          ,finals)])
            (parse-command-line command-name
