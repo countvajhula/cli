@@ -115,22 +115,20 @@
           (remove-at source
                      idx))))
 
-;; TODO: verify that one-of with just 1 arg is accepted and works
-;; then prevent it
 (define-syntax-parser constraint
-  [(_ ((~datum one-of) flag ...))
+  [(_ ((~datum one-of) flag0:id flag:id ...+))
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [~once-any (datum->syntax this-syntax '~once-any)])
      #'(for-each (λ (flg)
                    (~refile-flag flg ~once-each ~once-any))
-                 (list 'flag ...)))]
-  [(_ ((~datum multi) flag ...))
+                 (list 'flag0 'flag ...)))]
+  [(_ ((~datum multi) flag:id ...))
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [~multi (datum->syntax this-syntax '~multi)])
      #'(for-each (λ (flg)
                    (~refile-flag flg ~once-each ~multi))
                  (list 'flag ...)))]
-  [(_ ((~datum final) flag ...))
+  [(_ ((~datum final) flag:id ...))
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
                  [~final (datum->syntax this-syntax '~final)])
      #'(for-each (λ (flg)
