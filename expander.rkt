@@ -75,10 +75,7 @@
                                      ...)))])
      #`(begin #,@(syntax->list #'rewritten-clauses)))])
 
-(define-syntax-parser flag-id
-  [(_ (name param-name init-value))
-   (with-syntax ([param-name (datum->syntax this-syntax #'param-name)])
-     #'(define param-name (make-parameter init-value)))]
+(define-syntax-parser flag-param
   [(_ (name init-value))
    (with-syntax ([param-name (datum->syntax this-syntax #'name)])
      #'(define param-name (make-parameter init-value)))]
@@ -87,13 +84,29 @@
      #'(define param-name (make-parameter #f)))])
 
 (define-syntax-parser flag
-  [(_ id-spec (short-flag verbose-flag) description handler)
+  [(_ (name:id (~optional (~seq #:param paramspec)
+                          #:defaults ([paramspec #'name]))
+               arg ...)
+      (short-flag verbose-flag description)
+      body ...)
    (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
-                 [name (syntax-parse #'id-spec
-                         [(name arg ...) #'name]
-                         [name #'name])])
+                 [handler #'(λ (arg ...)
+                              body ...)])
      #'(begin
-         (flag-id id-spec)
+         (flag-param paramspec)
+         (set! ~once-each
+               (cons (list 'name short-flag verbose-flag description #'handler)
+                     ~once-each))))]
+  [(_ (name:id (~optional (~seq #:param paramspec)
+                          #:defaults ([paramspec #'name]))
+               . rest-args)
+      (short-flag verbose-flag description)
+      body ...)
+   (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
+                 [handler #'(λ rest-args
+                              body ...)])
+     #'(begin
+         (flag-param paramspec)
          (set! ~once-each
                (cons (list 'name short-flag verbose-flag description #'handler)
                      ~once-each))))])
