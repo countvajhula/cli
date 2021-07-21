@@ -95,7 +95,7 @@
      #'(begin
          (flag-id id-spec)
          (set! ~once-each
-               (cons (list 'name short-flag verbose-flag description handler #'handler)
+               (cons (list 'name short-flag verbose-flag description #'handler)
                      ~once-each))))])
 
 ;; move flag from one location (usually ~once-each, where all flags go by default)
@@ -146,7 +146,7 @@
         ;; needs to be a procedure rather than a
         ;; specification for a procedure
         (eval
-         (syntax-parse (sixth spec)
+         (syntax-parse (fifth spec)
            [((~or (~datum lambda) (~datum λ)) (arg ...)
                                               body ...)
             #'(λ (~flg arg ...)
@@ -158,7 +158,7 @@
         ;; we extract the argument names from the
         ;; lambda written by the user, and use those
         ;; as argument names in the spec
-        (let ([arg-names (syntax-parse (sixth spec)
+        (let ([arg-names (syntax-parse (fifth spec)
                            [((~or (~datum lambda) (~datum λ)) (arg ...)
                                                               body ...)
                             (map (compose symbol->string syntax->datum)
