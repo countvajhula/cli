@@ -97,23 +97,8 @@
          (flag-param paramspec)
          (set! ~once-each
                (cons (list 'name short-flag verbose-flag description #'handler)
-                     ~once-each))))]
-  [(_ (name:id (~optional (~seq #:param paramspec)
-                          #:defaults ([paramspec #'name]))
-               . rest-args)
-      (short-flag verbose-flag description)
-      body ...)
-   (with-syntax ([~once-each (datum->syntax this-syntax '~once-each)]
-                 [handler #'(λ rest-args
-                              body ...)])
-     #'(begin
-         (flag-param paramspec)
-         (set! ~once-each
-               (cons (list 'name short-flag verbose-flag description #'handler)
                      ~once-each))))])
 
-;; move flag from one location (usually ~once-each, where all flags go by default)
-;; to another (e.g. once-any, multi, or final)
 (define-syntax-parse-rule (~extract-flag! flag source)
   (let* ([idx (or (index-where source
                                (λ (v)
@@ -127,14 +112,16 @@
                      idx))
     flagspec))
 
-(define-syntax-parse-rule (~refile-flag! flag source destination)
-  (~insert-item! (~extract-flag! flag source)
-                 destination))
-
 (define-syntax-parse-rule (~insert-item! item destination)
   (set! destination
         (cons item
               destination)))
+
+;; move flag from one location (usually ~once-each, where all flags
+;; go by default) to another (e.g. once-any, multi, or final)
+(define-syntax-parse-rule (~refile-flag! flag source destination)
+  (~insert-item! (~extract-flag! flag source)
+                 destination))
 
 (define-syntax-parser constraint
   [(_ ((~datum one-of) flag0:id flag:id ...+))
