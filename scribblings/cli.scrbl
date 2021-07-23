@@ -93,7 +93,7 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
   Define the command to be run. This simply defines a function, where the arguments correspond directly to those received at the command line. The arguments may optionally be documented inline. Any declared @racketlink[flag]{flags} are available in the body of the function via the corresponding @tech[#:doc '(lib "scribblings/reference/reference.scrbl") #:key "parameter"]{parameters}. Any number of commands may be defined in the same file, and they would all have access to the same flags and environment. A command so defined is not executed unless it is invoked via @racket[run].
 
   @racketblock[
-    (program (contact-hosts admin)
+    (program (contact-hosts [admin "Your name"])
       (displayln (~a "Hello, " admin "!"))
       (define result 0)
       (for-each (λ (link)
