@@ -42,7 +42,7 @@ A language for writing command line interfaces that aims to be simple, composabl
                             (code:line (labels line ...))
                             (code:line (ps line ...))]
                [line string])]{
-  Document various aspects of the command for display via shell interaction (for instance, via the @racket[-h] flag). @racket[usage] shows usage information, @racket[labels] appear before the help section on flags, and @racket[ps] appears at the end of the help text, as a "postscript" to the text. Each of the subforms, @racket[usage], @racket[labels] and @racket[ps], accept strings provided in sequence, with each provided string appearing on a separate line in the output. These forms correspond to the similarly-named forms in Racket's @seclink["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")]{built-in command line provisions}.
+  Document various aspects of the command for display via shell interaction (for instance, via the @racket[-h] or @racket[--help] flag). @racket[usage] shows usage information, @racket[labels] appear before the help section on flags, and @racket[ps] appears at the end of the help text, as a "postscript" to the text. Each of the subforms, @racket[usage], @racket[labels] and @racket[ps], accept strings provided in sequence, with each provided string appearing on a separate line in the output. These forms correspond to the identically-named forms in Racket's @seclink["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")]{built-in command line provisions}.
 
 @racketblock[
   (help (usage "A script to say hello." "It also validates any provided links.")
@@ -77,7 +77,7 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
                                   (code:line (multi flag-id ...))
                                   (code:line (final flag-id ...))])
   ]{
-  Declare a constraint that applies to the flags. By default, a flag declared via @racket[flag] may appear at the command line at most once. A constraint changes this expectation for the indicated flags. @racket[one-of] indicates that only one of the flags in the indicated set may be provided, i.e. at most one @emph{in the set} rather than individually. @racket[multi] means that the indicated flags may appear any number of times, and @racket[final] means that none of the arguments following the indicated flags will be treated as flags. See @secref["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")] for more on what these constraints mean.
+  Declare a constraint that applies to the flags. By default, a flag declared via @racket[flag] may appear at the command line at most once. A constraint changes this expectation for the indicated flags. @racket[one-of] means that only one of the flags in the indicated set may be provided, i.e. at most one @emph{in the set} rather than individually. @racket[multi] means that the indicated flags may appear any number of times, and @racket[final] means that none of the arguments following the indicated flags will be treated as flags. See @secref["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")] for more on what these constraints mean.
 
   @racketblock[
     (constraint (one-of attempts retries))
