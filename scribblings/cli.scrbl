@@ -102,6 +102,8 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
                 (links))
       (displayln (~a "Done. Result: " result " hosts contacted.")))
   ]
+
+@margin-note{Although the function defined using @racket[program] appears to accept the arguments you indicate, in reality, it accepts raw command line arguments prepared in a certain structure which is parsed into the arguments you expect prior to your using them in the body of the function. Thus, if you called this function directly (for instance, mistakenly assuming it to be another function with the same name), you would get the following inscrutable error: @racket[parse-command-line: expected argument of type <argument vector/list of strings>]. As commands are just functions, they must have distinct names from other identifiers in scope in order to avoid shadowing them.}
 }
 
 @defform[(run program-name)]{
