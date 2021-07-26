@@ -113,3 +113,36 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
     (run contact-hosts)
   ]
 }
+
+@section{Interoperating with Racket}
+
+In addition to the forms above, the language includes all of @racket[racket/base], so that you may @racket[require] any identifiers that may be needed in your command line script. You may also freely intersperse and use Racket code within the @racket[cli] module.
+
+@section{Usage}
+
+@subsection{In a script}
+
+In order to use the language to write a command line script, simply declare the module as @hash-lang[] @racket[cli] at the top of the file.
+
+@subsection{In a main submodule}
+
+To use the language in a main submodule, use @racket[cli] as the module language.
+
+@racketmod[
+racket
+
+(require racket/format)
+
+(define (greeting name)
+  (~a "Hello, " name "!"))
+
+(provide greeting)
+
+(module* main cli
+  (require (submod ".."))
+  (program (say-hello [name "Your name"])
+    (displayln (greeting name)))
+  (run say-hello))
+]
+
+Since the module language differs from the enclosing module language, we need to explicitly require the enclosing module in the main submodule via @racket[(require (submod ".."))] in order to use the identifiers declared there. Also note that unlike in the typical case of using @racket[(module+ main)], the main submodule would only have access to the enclosing module identifiers when they are explicitly @racketlink[provide]{provided}, as in the example above.
