@@ -226,5 +226,4 @@
                                (list desc ...)))))])
 
 (define-syntax-parse-rule (run name:id)
-  (module+ main
-    (name (current-command-line-arguments))))
+  (name (current-command-line-arguments)))
