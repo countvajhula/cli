@@ -17,7 +17,7 @@
 
 @defmodulelang[cli]
 
-A language for writing command line interfaces that aims to be simple, composable, and robust.
+A language for writing command line interfaces that aims to be simple, composable, and robust. You can use it to write @seclink["In_a_script" #:doc '(lib "cli/scribblings/cli.scrbl")]{standalone scripts}, or to extend the capabilities of @seclink["In_a_main_submodule" #:doc '(lib "cli/scribblings/cli.scrbl")]{an existing main submodule}.
 
 @racketblock[
 (help (usage "A convenient way to write command line interfaces."))
@@ -90,7 +90,7 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
               ([argspec (code:line arg)
                         (code:line [arg description])])
   ]{
-  Define the command to be run. This simply defines a function, where the arguments correspond directly to those received at the command line. The arguments may optionally be documented inline. Any declared @racketlink[flag]{flags} are available in the body of the function via the corresponding @tech[#:doc '(lib "scribblings/reference/reference.scrbl") #:key "parameter"]{parameters}. Any number of commands may be defined in the same file, and they would all have access to the same flags and environment. A command so defined is not executed unless it is invoked via @racket[run].
+  Define the command to be run. This simply defines a function, where the arguments correspond directly to those received at the command line. The arguments may optionally be documented inline, and these descriptions would appear at the command line in help text and prompts. Any declared @racketlink[flag]{flags} are available in the body of the function via the corresponding @tech[#:doc '(lib "scribblings/reference/reference.scrbl") #:key "parameter"]{parameters}. Any number of commands may be defined in the same file, and they would all have access to the same flags and environment. A command so defined is not executed unless it is invoked via @racket[run].
 
   @racketblock[
     (program (contact-hosts [admin "Your name"])
@@ -124,9 +124,18 @@ In addition to the forms above, the language includes all of @racket[racket/base
 
 In order to use the language to write a command line script, simply declare the module as @hash-lang[] @racket[cli] at the top of the file.
 
+@racketmod[
+cli
+
+(program (hello name)
+  (displayln (string-append "Hello " name "!")))
+
+(run hello)
+]
+
 @subsection{In a main submodule}
 
-To use the language in a main submodule, use @racket[cli] as the module language.
+To use the language in a @seclink["main-and-test" #:doc '(lib "scribblings/guide/guide.scrbl")]{main submodule}, use @racket[cli] as the module language.
 
 @racketmod[
 racket
