@@ -16,5 +16,5 @@
 (define test-omit-paths '("dev" "coverage"))
 (define clean '("compiled" "doc" "doc/cli" "private/compiled"))
 (define pkg-desc "A language for writing Command Line Interfaces")
-(define version "0.0")
+(define version "1.0")
 (define pkg-authors '(countvajhula))
