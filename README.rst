@@ -1,6 +1,9 @@
 .. image:: https://github.com/countvajhula/cli/actions/workflows/test.yml/badge.svg
     :target: https://github.com/countvajhula/cli/actions/workflows/test.yml
 
+.. image:: https://coveralls.io/repos/github/countvajhula/cli/badge.svg?branch=main
+    :target: https://coveralls.io/github/countvajhula/cli?branch=main
+
 cli
 ===
 A language for writing command line interfaces in Racket.
