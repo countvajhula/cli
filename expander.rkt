@@ -225,5 +225,6 @@
                                  ...)
                                (list desc ...)))))])
 
-(define-syntax-parse-rule (run name:id)
-  (name (current-command-line-arguments)))
+(define-syntax-parser run
+  [(_ name:id) #'(name (current-command-line-arguments))]
+  [(_ name:id args:expr) #'(name args)])

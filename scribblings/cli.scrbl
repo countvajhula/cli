@@ -103,14 +103,20 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
       (displayln (~a "Done. Result: " result " hosts contacted.")))
   ]
 
-@margin-note{Although the function defined using @racket[program] appears to accept the arguments you indicate, in reality, it accepts raw command line arguments prepared in a certain structure which is parsed into the arguments you expect prior to your using them in the body of the function. Thus, if you called this function directly (for instance, mistakenly assuming it to be another function with the same name), you would get the following inscrutable error: @racket[parse-command-line: expected argument of type <argument vector/list of strings>]. As commands are just functions, they must have distinct names from other identifiers in scope in order to avoid shadowing them.}
+@margin-note{Although the function defined using @racket[program] appears to accept the arguments you indicate, in reality, it accepts raw command line arguments as a @racketlink[current-command-line-arguments]{vector of strings} which are parsed into the arguments you expect prior to your using them in the body of the function. Thus, if you called this function directly (for instance, mistakenly assuming it to be another function with the same name), you would get the following inscrutable error: @racket[parse-command-line: expected argument of type <argument vector/list of strings>]. As commands are just functions, they must have distinct names from other identifiers in scope in order to avoid shadowing them.}
 }
 
-@defform[(run program-name)]{
+@defform/subs[(run program-instance)
+              ([program-instance (code:line name)
+                                 (code:line name argv)])
+]{
   Run a command. Any command defined via @racket[program] may be indicated here. The command need not be defined in the same module -- since programs are just functions, they could be defined anywhere and simply @racketlink[require]{required} in order to make them available for execution.
+
+  By default, @racket[run] passes the @racketlink[current-command-line-arguments]{current command line arguments} to the command, but you could also override this by providing a vector of strings representing a command line invocation, which may be useful @seclink["Testing_Your_Script" #:doc '(lib "cli/scribblings/cli.scrbl")]{for testing}.
 
   @racketblock[
     (run contact-hosts)
+    (run contact-hosts #("-a" "3" "George"))
   ]
 }
 
@@ -155,3 +161,9 @@ racket
 ]
 
 Since the module language differs from the enclosing module language, we need to explicitly require the enclosing module in the main submodule via @racket[(require (submod ".."))] in order to use the identifiers declared there. Also note that unlike in the typical case of using @racket[(module+ main)], the main submodule would only have access to the enclosing module identifiers when they are explicitly @racketlink[provide]{provided}, as in the example above.
+
+@section{Testing Your Script}
+
+The @racket[program] form syntactically resembles and indeed compiles to a simple function, and so can be tested just like any other function. But since command line scripts do not typically return values, it would probably make the most sense to put any business logic in vanilla (non-CLI) functions which are independently unit-tested, with the @racket[program] form dispatching to those functions.
+
+Even so, it can be useful during development and even for "smoke" tests to be able to run your script programmatically. To do this, simply pass the arguments and flags that you would on the command line to the @racket[run] form as a vector of strings, like @racket[(run contact-hosts #("-a" "3" "George"))]. Note that each value in the vector @emph{must} be a string, even if you use it as another data type (such as a number) in the body of your program form.
