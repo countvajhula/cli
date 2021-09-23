@@ -164,6 +164,10 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
 
 In addition to the forms above, the language includes all of @racket[racket/base], so that you may @racket[require] any identifiers that may be needed in your command line script. You may also freely intersperse and use Racket code within the @racket[cli] module.
 
+@section{Implementation}
+
+This library internally leverages Racket's built-in command line facilities including @racket[parse-command-line] for core functionality, and @racket[current-command-line-arguments] for arguments parsed from the command line. The functionality provided by this library therefore includes all of the functionality of the core interfaces.
+
 @section{Testing Your Script}
 
 The @racket[program] form syntactically resembles and indeed compiles to a simple function, and so can be tested just like any other function. But since command line scripts do not typically return values, it would probably make the most sense to put any business logic in vanilla (non-CLI) functions which are independently unit-tested, with the @racket[program] form dispatching to those functions.
