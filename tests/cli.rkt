@@ -39,6 +39,12 @@
      (check-equal? (run contact #("-a" "3")) 3))
 
    (test-case
+       "script accepting a flag with multiple arguments"
+     ;; see note above re: reproducibility and dynamic binding
+     (check-equal? (run reconnect #()) '(1 3)) ; default reconnect config in the script
+     (check-equal? (run reconnect #("-d" "3" "5")) '(3 5)))
+
+   (test-case
        "flag constraints"
      (check-equal? (run rules #()) #t)
      (check-equal? (run rules #("-o")) #t)

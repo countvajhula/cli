@@ -4,6 +4,7 @@
          "scripts/args.rkt"
          "scripts/flag.rkt"
          "scripts/flag-w-args.rkt"
+         "scripts/flag-w-multiple-args.rkt"
          "scripts/doc.rkt"
          "scripts/constraints.rkt")
 
@@ -12,5 +13,6 @@
                "scripts/args.rkt"
                "scripts/flag.rkt"
                "scripts/flag-w-args.rkt"
+               "scripts/flag-w-multiple-args.rkt"
                "scripts/doc.rkt"
                "scripts/constraints.rkt"))

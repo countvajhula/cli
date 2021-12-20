@@ -97,7 +97,7 @@ Since the module language differs from the enclosing module language, we need to
                           (code:line [param-name init-value])]
                [metadata (code:line (short-flag long-flag description))])
   ]{
-  Declare a flag that will be accepted by the program. This form specifies a function that will be called when the flag is provided at the command line. This function (and the corresponding command-line flag) can accept any number of arguments, or no arguments -- but in general, a specific number of them. To accept an arbitrary number of arguments, use the @racket[multi] @racket[constraint].
+  Declare a flag that will be accepted by the program. This form specifies a function that will be called when the flag is provided at the command line. This function (and the corresponding command-line flag) can accept any number of arguments, or no arguments -- but in general, a specific number of them. The flag will consume the specified number of arguments at the command line. To accept an arbitrary number of arguments, use the @racket[multi] @racket[constraint], instead (or in addition).
 
 Each flag defined using @racket[flag] results in the creation of a @tech/reference{parameter} which may be used to store relevant values or configuration which will be available to the running program defined in the @racket[program] form. By default, this parameter has the same name as that of the flag, and is initialized with the value @racket[#f], but these may be configured via the keyword argument @racket[#:param]. Note that Racket parameters are accessed by invoking them, so in the examples below, it is these parameters being invoked rather than the flag functions which appear to have the same name (but which, under the hood, are anonymous).
 
@@ -105,6 +105,10 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
     (flag (attempts n)
       ("-a" "--attempts" "Number of attempts to make")
       (attempts (string->number n)))
+
+    (flag (transaction n timeout)
+      ("-t" "--transaction" "Size of transaction, and timeout value")
+      (transaction (map string->number (list n timeout))))
 
     (flag (links #:param [links null] link)
       ("-l" "--link" "Links to validate")
@@ -117,7 +121,11 @@ Each flag defined using @racket[flag] results in the creation of a @tech/referen
                                   (code:line (multi flag-id ...))
                                   (code:line (final flag-id ...))])
   ]{
-  Declare a constraint that applies to the flags. By default, a flag declared via @racket[flag] may appear at the command line at most once. A constraint changes this expectation for the indicated flags. @racket[one-of] means that only one of the flags in the indicated set may be provided, i.e. at most one @emph{in the set} rather than individually. @racket[multi] means that the indicated flags may appear any number of times, and @racket[final] means that none of the arguments following the indicated flags will be treated as flags. See @secref["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")] for more on what these constraints mean.
+  Declare a constraint that applies to the flags. By default, a flag declared via @racket[flag] may appear at the command line at most once. A constraint changes this expectation for the indicated flags. @racket[one-of] means that only one of the flags in the indicated set may be provided, i.e. at most one @emph{in the set} rather than individually. @racket[multi] means that the indicated flags may appear any number of times. @racket[final] means that none of the arguments following the indicated flags will be treated as flags.
+
+  A constraint does not modify the number of arguments the flag will consume, which is determined by the @racket[flag] definition. For instance, a flag with a @racket[multi] constraint that accepts two arguments in its definition will consume two arguments @emph{each time} it appears at the command line.
+
+  See @secref["Command-Line_Parsing" #:doc '(lib "scribblings/reference/reference.scrbl")] for more on what these constraints mean.
 
   @racketblock[
     (constraint (one-of attempts retries))
